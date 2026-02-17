@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4efe6;
+  --foreground: #1b1a18;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+.panel {
+  border: 1px solid #dfd7ca;
+  background: #fffdf9;
+  border-radius: 1.1rem;
+}
+
+.input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #d8cfbf;
+  background: #fffdfa;
+  padding: 0.62rem 0.75rem;
+  font-size: 0.95rem;
+  color: #1f1c17;
+  outline: none;
+  transition: border-color 120ms ease;
+}
+
+.input:focus {
+  border-color: #9c8e77;
+}
+
+.button-primary {
+  border-radius: 0.75rem;
+  border: 1px solid #1f1c17;
+  background: #1f1c17;
+  color: #faf7f2;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.55rem 0.9rem;
+  transition: opacity 120ms ease;
+}
+
+.button-primary:hover {
+  opacity: 0.9;
+}
+
+.button-secondary {
+  border-radius: 0.75rem;
+  border: 1px solid #d8cfbf;
+  background: #fffdfa;
+  color: #1f1c17;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.55rem 0.9rem;
+  transition: border-color 120ms ease;
+}
+
+.button-secondary:hover {
+  border-color: #9c8e77;
+}
