@@ -1,4 +1,5 @@
 import type { Interviewer } from "@/lib/supabase/scheduler";
+import type { Team } from "@/lib/teams";
 
 export type InterviewBooking = {
   id: string;
@@ -10,10 +11,14 @@ export type InterviewBooking = {
   createdAt: string;
   firstPreference?: string | null;
   secondPreference?: string | null;
+  team?: Team | null;
 };
 
 export type SchedulerState = {
   interviewers: Interviewer[];
+  interviewersByTeam: Record<Team, Interviewer[]>;
+  interviewerTeamMemberships: Record<string, Team[]>;
+  interviewCountByInterviewer: Record<string, number>;
   currentInterviewerId: string;
   availabilityByInterviewer: Record<string, string[]>;
   bookings: InterviewBooking[];
@@ -35,6 +40,7 @@ export type SchedulerContextValue = {
     slotKey: string;
     firstPreference?: string | null;
     secondPreference?: string | null;
+    team?: Team | null;
   }) => void;
   refetch: () => Promise<void>;
   clearError: () => void;

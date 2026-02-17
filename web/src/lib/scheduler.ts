@@ -1,5 +1,16 @@
 import type { InterviewBooking } from "@/lib/store/types";
 
+export function computeInterviewCounts(
+  bookings: InterviewBooking[],
+): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const b of bookings) {
+    counts[b.interviewerAId] = (counts[b.interviewerAId] ?? 0) + 1;
+    counts[b.interviewerBId] = (counts[b.interviewerBId] ?? 0) + 1;
+  }
+  return counts;
+}
+
 export function getSharedSlots(
   interviewerASlots: string[],
   interviewerBSlots: string[],

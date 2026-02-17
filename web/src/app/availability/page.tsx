@@ -70,17 +70,25 @@ export default function AvailabilityPage() {
               Drag across the grid to mark available time blocks, then confirm to save.
             </p>
 
-            <label className="mt-5 block text-sm font-medium text-stone-700">Interviewer</label>
+            <label className="mt-5 block text-sm font-medium text-stone-700">
+              Interviewer (select yourself)
+            </label>
             <select
               className="input mt-2"
               value={state.currentInterviewerId}
               onChange={(event) => setCurrentInterviewer(event.target.value)}
             >
-              {state.interviewers.map((interviewer) => (
-                <option key={interviewer.id} value={interviewer.id}>
-                  {interviewer.full_name}
-                </option>
-              ))}
+              {state.interviewers.map((interviewer) => {
+                const teams = state.interviewerTeamMemberships[interviewer.id] ?? [];
+                const suffix =
+                  teams.length > 0 ? ` (${teams.join(", ")})` : "";
+                return (
+                  <option key={interviewer.id} value={interviewer.id}>
+                    {interviewer.full_name}
+                    {suffix}
+                  </option>
+                );
+              })}
             </select>
 
             <div className="mt-5 rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-700">

@@ -1,5 +1,5 @@
 -- Combined setup: run this in Supabase Dashboard SQL Editor for a fresh database
--- Contains: 0001_initial_schema + 0002_scheduler_tables + 0003_enable_rls + 0004_add_booking_preferences
+-- Contains: 0001 + 0002 + 0003 + 0004 + 0005_teams_schema
 
 -- ========== 0001_initial_schema.sql ==========
 create extension if not exists "pgcrypto";
@@ -185,3 +185,39 @@ create type public.team as enum (
 alter table public.scheduler_bookings
   add column first_preference public.team,
   add column second_preference public.team;
+
+-- ========== 0005_teams_schema.sql ==========
+create table public.interviewer_teams (
+  interviewer_id text not null references public.interviewers(id) on delete cascade,
+  team public.team not null,
+  primary key (interviewer_id, team)
+);
+
+create index interviewer_teams_team_idx on public.interviewer_teams (team);
+create index interviewer_teams_interviewer_idx on public.interviewer_teams (interviewer_id);
+
+alter table public.scheduler_bookings
+  add column team public.team;
+
+alter table public.interviewer_teams enable row level security;
+create policy "interviewer_teams_select" on public.interviewer_teams for select to anon using (true);
+
+insert into public.interviewers (id, full_name) values
+  ('i-ella', 'Ella Kim'),
+  ('i-marcus', 'Marcus Jones'),
+  ('i-sophia', 'Sophia Wu'),
+  ('i-james', 'James Taylor');
+
+insert into public.interviewer_teams (interviewer_id, team) values
+  ('i-ava', 'Events'),
+  ('i-ava', 'Marketing'),
+  ('i-liam', 'Projects'),
+  ('i-liam', 'Strategy'),
+  ('i-noah', 'Projects'),
+  ('i-noah', 'Sponsorships'),
+  ('i-mia', 'Content Creation'),
+  ('i-mia', 'HR'),
+  ('i-ella', 'Projects'),
+  ('i-marcus', 'Projects'),
+  ('i-sophia', 'Projects'),
+  ('i-james', 'Projects');

@@ -11,27 +11,39 @@ import {
   getInterviewerName,
   getSharedSlots,
 } from "@/lib/scheduler";
-import { TEAMS } from "@/lib/teams";
+import { TEAMS, getMemberColour, type Team } from "@/lib/teams";
 import { useSchedulerStore } from "@/lib/store/schedulerStore";
 
 export default function SchedulePage() {
   const { state, bookCandidateSlot } = useSchedulerStore();
   const [interviewerAId, setInterviewerAId] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState<Team | "">("");
   const [interviewerBId, setInterviewerBId] = useState("");
   const [candidateName, setCandidateName] = useState("");
   const [candidateEmail, setCandidateEmail] = useState("");
   const [firstPreference, setFirstPreference] = useState<string>("");
   const [secondPreference, setSecondPreference] = useState<string>("");
-
-  useEffect(() => {
-    if (state.interviewers.length >= 2 && !interviewerAId && !interviewerBId) {
-      setInterviewerAId(state.interviewers[0].id);
-      setInterviewerBId(state.interviewers[1].id);
-    }
-  }, [state.interviewers, interviewerAId, interviewerBId]);
   const [selectedSlotKey, setSelectedSlotKey] = useState<string>("");
   const [message, setMessage] = useState("");
   const weekDates = getWeekDates();
+
+  const teamMembers = useMemo(() => {
+    if (!selectedTeam) return [];
+    return state.interviewersByTeam[selectedTeam] ?? [];
+  }, [selectedTeam, state.interviewersByTeam]);
+
+  useEffect(() => {
+    if (state.interviewers.length >= 1 && !interviewerAId) {
+      setInterviewerAId(state.interviewers[0].id);
+    }
+  }, [state.interviewers, interviewerAId]);
+
+  useEffect(() => {
+    if (selectedTeam && interviewerBId) {
+      const inTeam = teamMembers.some((m) => m.id === interviewerBId);
+      if (!inTeam) setInterviewerBId("");
+    }
+  }, [selectedTeam, interviewerBId, teamMembers]);
 
   const blockedSlots = useMemo(() => {
     if (interviewerAId === interviewerBId) return [];
@@ -67,6 +79,10 @@ export default function SchedulePage() {
       setMessage("That slot is already booked out for both interviewers.");
       return;
     }
+    if (!selectedTeam) {
+      setMessage("Select a team for Interviewer B.");
+      return;
+    }
 
     bookCandidateSlot({
       candidateName: candidateName.trim(),
@@ -76,6 +92,7 @@ export default function SchedulePage() {
       slotKey: selectedSlotKey,
       firstPreference: firstPreference || null,
       secondPreference: secondPreference || null,
+      team: selectedTeam,
     });
 
     setMessage("Candidate scheduled. The selected slot has been blocked.");
@@ -122,15 +139,19 @@ export default function SchedulePage() {
           <aside className="schedule-layout-sidebar panel p-6">
             <h1 className="text-xl font-semibold text-stone-900">Schedule a Candidate</h1>
             <p className="mt-2 text-sm text-stone-600">
-              Choose interviewers, add candidate info, then select a slot from the grid.
+              Select yourself, choose a team and co-interviewer, add candidate info, then pick a
+              slot.
             </p>
 
-            <label className="mt-5 block text-sm font-medium text-stone-700">Interviewer A</label>
+            <label className="mt-5 block text-sm font-medium text-stone-700">
+              You (Interviewer A)
+            </label>
             <select
               className="input mt-2"
               value={interviewerAId}
               onChange={(event) => setInterviewerAId(event.target.value)}
             >
+              <option value="">Select yourself…</option>
               {state.interviewers.map((interviewer) => (
                 <option key={interviewer.id} value={interviewer.id}>
                   {interviewer.full_name}
@@ -138,15 +159,21 @@ export default function SchedulePage() {
               ))}
             </select>
 
-            <label className="mt-4 block text-sm font-medium text-stone-700">Interviewer B</label>
+            <label className="mt-4 block text-sm font-medium text-stone-700">
+              Team (for Interviewer B)
+            </label>
             <select
               className="input mt-2"
-              value={interviewerBId}
-              onChange={(event) => setInterviewerBId(event.target.value)}
+              value={selectedTeam}
+              onChange={(event) => {
+                setSelectedTeam(event.target.value as Team | "");
+                setInterviewerBId("");
+              }}
             >
-              {state.interviewers.map((interviewer) => (
-                <option key={interviewer.id} value={interviewer.id}>
-                  {interviewer.full_name}
+              <option value="">Select team…</option>
+              {TEAMS.map((team) => (
+                <option key={team} value={team}>
+                  {team}
                 </option>
               ))}
             </select>
@@ -206,7 +233,9 @@ export default function SchedulePage() {
             <div className="mt-5 rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-700">
               <p className="font-medium text-stone-900">
                 {getInterviewerName(state.interviewers, interviewerAId)} +{" "}
-                {getInterviewerName(state.interviewers, interviewerBId)}
+                {interviewerBId
+                  ? getInterviewerName(state.interviewers, interviewerBId)
+                  : "—"}
               </p>
               <p className="mt-1">
                 {sharedSlots.length - blockedSlots.length} slots available
@@ -245,6 +274,51 @@ export default function SchedulePage() {
               />
             )}
           </section>
+
+          <aside className="schedule-layout-key panel p-4">
+            {selectedTeam && teamMembers.length > 0 ? (
+              <div className="rounded-xl border border-stone-200 bg-stone-50 p-3">
+                <p className="text-xs font-medium uppercase tracking-wide text-stone-500">
+                  Key
+                </p>
+                <p className="mt-0.5 text-xs text-stone-500">
+                  Prioritize PLDs. Pick someone with fewer interviews.
+                </p>
+                <ul className="mt-2 space-y-1.5 text-sm text-stone-700">
+                  {teamMembers.map((member, index) => {
+                    const colour = getMemberColour(member.id, index);
+                    const count = state.interviewCountByInterviewer[member.id] ?? 0;
+                    const isSelected = interviewerBId === member.id;
+                    return (
+                      <li key={member.id}>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setInterviewerBId(isSelected ? "" : member.id)
+                          }
+                          className={`flex w-full items-center gap-2 rounded-lg border px-2 py-1.5 text-left transition ${
+                            isSelected
+                              ? "border-stone-700 bg-stone-100 ring-1 ring-stone-700"
+                              : "border-transparent hover:bg-white/60"
+                          }`}
+                        >
+                          <span
+                            className="h-2.5 w-2.5 shrink-0 rounded-full"
+                            style={{ backgroundColor: colour }}
+                          />
+                          {member.full_name} — {count} booked
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ) : (
+              <p className="text-sm text-stone-500">
+                Select a team to choose Interviewer B and view the key.
+              </p>
+            )}
+          </aside>
         </section>
 
         <section className="panel mt-6 p-6">
@@ -262,6 +336,9 @@ export default function SchedulePage() {
                 >
                   <span className="font-medium text-stone-900">{booking.candidateName}</span> (
                   {booking.candidateEmail})
+                  {booking.team ? (
+                    <span className="text-stone-600"> — {booking.team}</span>
+                  ) : null}
                   {booking.firstPreference || booking.secondPreference ? (
                     <span className="text-stone-600">
                       {" "}

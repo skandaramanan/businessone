@@ -9,12 +9,16 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { computeInterviewCounts } from "@/lib/scheduler";
 import {
   createBooking,
   getAllAvailability,
   getBookings,
   getInterviewers,
+  getInterviewersByTeam,
+  getInterviewerTeamMemberships,
   setInterviewerSlots as persistInterviewerSlots,
+  type Interviewer,
   type SchedulerBooking,
 } from "@/lib/supabase/scheduler";
 import type {
@@ -22,6 +26,7 @@ import type {
   SchedulerContextValue,
   SchedulerState,
 } from "@/lib/store/types";
+import { TEAMS, type Team } from "@/lib/teams";
 
 const storageKey = "businessone.scheduler.v1";
 const currentInterviewerKey = "businessone.scheduler.currentInterviewer";
@@ -37,8 +42,13 @@ function mapToInterviewBooking(b: SchedulerBooking): InterviewBooking {
     createdAt: b.created_at,
     firstPreference: b.first_preference ?? null,
     secondPreference: b.second_preference ?? null,
+    team: (b.team as Team) ?? null,
   };
 }
+
+const emptyInterviewersByTeam = Object.fromEntries(
+  TEAMS.map((t) => [t, [] as Interviewer[]]),
+) as Record<Team, Interviewer[]>;
 
 async function migrateFromLocalStorage(): Promise<boolean> {
   if (typeof window === "undefined") return false;
@@ -92,6 +102,9 @@ async function migrateFromLocalStorage(): Promise<boolean> {
 
 const emptyState: SchedulerState = {
   interviewers: [],
+  interviewersByTeam: emptyInterviewersByTeam,
+  interviewerTeamMemberships: {},
+  interviewCountByInterviewer: {},
   currentInterviewerId: "i-ava",
   availabilityByInterviewer: {},
   bookings: [],
@@ -132,17 +145,29 @@ export function SchedulerProvider({ children }: { children: ReactNode }) {
   const refetch = useCallback(async () => {
     setState((s) => ({ ...s, isLoading: true, error: null }));
     try {
-      const [interviewers, availability, bookings] = await Promise.all([
+      const [
+        interviewers,
+        availability,
+        bookings,
+        interviewersByTeam,
+        interviewerTeamMemberships,
+      ] = await Promise.all([
         getInterviewers(),
         getAllAvailability(),
         getBookings(),
+        getInterviewersByTeam(),
+        getInterviewerTeamMemberships(),
       ]);
 
       const mappedBookings = bookings.map(mapToInterviewBooking);
+      const interviewCountByInterviewer = computeInterviewCounts(mappedBookings);
 
       setState((s) => ({
         ...s,
         interviewers,
+        interviewersByTeam,
+        interviewerTeamMemberships,
+        interviewCountByInterviewer,
         availabilityByInterviewer: availability,
         bookings: mappedBookings,
         isLoading: false,
@@ -166,15 +191,24 @@ export function SchedulerProvider({ children }: { children: ReactNode }) {
         await migrateFromLocalStorage();
         if (cancelled) return;
 
-        const [interviewers, availability, bookings] = await Promise.all([
+        const [
+          interviewers,
+          availability,
+          bookings,
+          interviewersByTeam,
+          interviewerTeamMemberships,
+        ] = await Promise.all([
           getInterviewers(),
           getAllAvailability(),
           getBookings(),
+          getInterviewersByTeam(),
+          getInterviewerTeamMemberships(),
         ]);
 
         if (cancelled) return;
 
         const mappedBookings = bookings.map(mapToInterviewBooking);
+        const interviewCountByInterviewer = computeInterviewCounts(mappedBookings);
 
         const storedCurrent = typeof window !== "undefined"
           ? window.localStorage.getItem(currentInterviewerKey)
@@ -186,6 +220,9 @@ export function SchedulerProvider({ children }: { children: ReactNode }) {
 
         setState({
           interviewers,
+          interviewersByTeam,
+          interviewerTeamMemberships,
+          interviewCountByInterviewer,
           currentInterviewerId,
           availabilityByInterviewer: availability,
           bookings: mappedBookings,
@@ -246,13 +283,20 @@ export function SchedulerProvider({ children }: { children: ReactNode }) {
           slot_key: input.slotKey,
           first_preference: input.firstPreference ?? null,
           second_preference: input.secondPreference ?? null,
+          team: input.team ?? null,
         })
           .then((b) => {
-            setState((s) => ({
-              ...s,
-              bookings: [mapToInterviewBooking(b), ...s.bookings],
-              error: null,
-            }));
+            const newBooking = mapToInterviewBooking(b);
+            setState((s) => {
+              const bookings = [newBooking, ...s.bookings];
+              const interviewCountByInterviewer = computeInterviewCounts(bookings);
+              return {
+                ...s,
+                bookings,
+                interviewCountByInterviewer,
+                error: null,
+              };
+            });
           })
           .catch((err) => {
             const msg =

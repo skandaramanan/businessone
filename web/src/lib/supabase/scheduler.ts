@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
+import { TEAMS, type Team } from "@/lib/teams";
 
 export type Interviewer = {
   id: string;
@@ -15,6 +16,7 @@ export type SchedulerBooking = {
   created_at: string;
   first_preference?: string | null;
   second_preference?: string | null;
+  team?: Team | null;
 };
 
 export async function getInterviewers(): Promise<Interviewer[]> {
@@ -102,6 +104,7 @@ export async function createBooking(input: {
   slot_key: string;
   first_preference?: string | null;
   second_preference?: string | null;
+  team?: Team | null;
 }): Promise<SchedulerBooking> {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -114,17 +117,43 @@ export async function createBooking(input: {
   return data as SchedulerBooking;
 }
 
-export function getBookedSlotsForPair(
-  bookings: SchedulerBooking[],
-  interviewerAId: string,
-  interviewerBId: string,
-): string[] {
-  return bookings
-    .filter((booking) => {
-      const participants = [booking.interviewer_a_id, booking.interviewer_b_id];
-      return (
-        participants.includes(interviewerAId) || participants.includes(interviewerBId)
-      );
-    })
-    .map((booking) => booking.slot_key);
+export async function getInterviewersByTeam(): Promise<Record<Team, Interviewer[]>> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("interviewer_teams")
+    .select("team, interviewers(id, full_name)");
+
+  if (error) throw error;
+
+  const result = Object.fromEntries(TEAMS.map((t) => [t, [] as Interviewer[]])) as Record<
+    Team,
+    Interviewer[]
+  >;
+  for (const row of data ?? []) {
+    const team = row.team as Team;
+    const raw = row.interviewers as Interviewer | Interviewer[] | null;
+    const interviewer = Array.isArray(raw) ? raw[0] : raw;
+    if (!interviewer?.id || !result[team]) continue;
+    const exists = result[team].some((i) => i.id === interviewer.id);
+    if (!exists) result[team].push(interviewer);
+  }
+  return result;
+}
+
+export async function getInterviewerTeamMemberships(): Promise<Record<string, Team[]>> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("interviewer_teams")
+    .select("interviewer_id, team");
+
+  if (error) throw error;
+
+  const result: Record<string, Team[]> = {};
+  for (const row of data ?? []) {
+    const id = row.interviewer_id as string;
+    const team = row.team as Team;
+    if (!result[id]) result[id] = [];
+    result[id].push(team);
+  }
+  return result;
 }

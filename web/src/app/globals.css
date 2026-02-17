@@ -95,12 +95,18 @@ body {
 }
 
 .schedule-layout-sidebar {
-  flex: 0 0 30%;
+  flex: 0 0 28%;
   min-width: 220px;
-  max-width: 360px;
+  max-width: 340px;
 }
 
 .schedule-layout-grid {
   flex: 1;
   min-width: 0;
+}
+
+.schedule-layout-key {
+  flex: 0 0 220px;
+  min-width: 200px;
+  max-width: 260px;
 }
