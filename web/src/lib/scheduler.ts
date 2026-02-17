@@ -1,19 +1,4 @@
-export const defaultInterviewers = [
-  { id: "i-ava", name: "Ava Shah" },
-  { id: "i-liam", name: "Liam Chen" },
-  { id: "i-noah", name: "Noah Patel" },
-  { id: "i-mia", name: "Mia Lopez" },
-];
-
-export type InterviewBooking = {
-  id: string;
-  candidateName: string;
-  candidateEmail: string;
-  interviewerAId: string;
-  interviewerBId: string;
-  slotKey: string;
-  createdAt: string;
-};
+import type { InterviewBooking } from "@/lib/store/types";
 
 export function getSharedSlots(
   interviewerASlots: string[],
@@ -38,9 +23,29 @@ export function getBookedSlotsForPair(
     .map((booking) => booking.slotKey);
 }
 
-export function getInterviewerName(interviewerId: string): string {
+export function getBlockedSlotLabels(
+  bookings: InterviewBooking[],
+  interviewerAId: string,
+  interviewerBId: string,
+): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const b of bookings) {
+    const participants = [b.interviewerAId, b.interviewerBId];
+    if (
+      participants.includes(interviewerAId) ||
+      participants.includes(interviewerBId)
+    ) {
+      result[b.slotKey] = b.candidateName;
+    }
+  }
+  return result;
+}
+
+export function getInterviewerName(
+  interviewers: { id: string; full_name: string }[],
+  interviewerId: string,
+): string {
   return (
-    defaultInterviewers.find((interviewer) => interviewer.id === interviewerId)?.name ??
-    "Unknown interviewer"
+    interviewers.find((i) => i.id === interviewerId)?.full_name ?? "Unknown interviewer"
   );
 }

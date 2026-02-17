@@ -9,6 +9,7 @@ type WeekAvailabilityGridProps = {
   onChangeSlots?: (slots: string[]) => void;
   selectableSlots?: string[];
   blockedSlots?: string[];
+  blockedSlotLabels?: Record<string, string>;
   activeSlotKey?: string;
   onSelectSlot?: (slotKey: string) => void;
   mode?: "availability" | "booking";
@@ -19,6 +20,7 @@ export function WeekAvailabilityGrid({
   onChangeSlots,
   selectableSlots,
   blockedSlots,
+  blockedSlotLabels,
   activeSlotKey,
   onSelectSlot,
   mode = "availability",
@@ -96,18 +98,23 @@ export function WeekAvailabilityGrid({
               const canDragEdit =
                 mode === "availability" && isSelectable && !isBlocked && Boolean(onChangeSlots);
               const canClickSelect = mode === "booking" && isSelectable && !isBlocked;
+              const blockedLabel = isBlocked && blockedSlotLabels?.[slotKey];
 
               const cellClass = [
-                "h-8 border-b border-r border-stone-200 transition-colors",
+                "h-9 min-h-9 border-b border-r border-stone-200 transition-colors text-left",
                 canDragEdit || canClickSelect ? "cursor-pointer" : "cursor-not-allowed",
                 mode === "availability" && isSelected
-                  ? "bg-stone-900"
-                  : mode === "booking" && isSelected
-                    ? "bg-stone-200"
+                  ? "bg-stone-900 text-white"
+                  : mode === "booking"
+                    ? isBlocked
+                      ? "bg-stone-400 text-stone-800"
+                      : isActive
+                        ? "bg-emerald-500 text-white"
+                        : isSelectable
+                          ? "bg-stone-900 text-white hover:bg-stone-800"
+                          : "bg-stone-100 text-stone-400"
                     : "bg-stone-50",
-                mode === "booking" && isActive ? "bg-emerald-500" : "",
-                isBlocked ? "bg-stone-300 text-[9px] text-stone-700" : "",
-                !isSelected && !isBlocked ? "hover:bg-stone-100" : "",
+                !isSelected && !isBlocked && mode === "availability" ? "hover:bg-stone-100" : "",
               ].join(" ");
 
               return (
@@ -125,10 +132,20 @@ export function WeekAvailabilityGrid({
                   onClick={() => {
                     if (onSelectSlot && canClickSelect) onSelectSlot(slotKey);
                   }}
-                  title={isBlocked ? "Booked out for both interviewers" : undefined}
+                  title={
+                    isBlocked
+                      ? blockedLabel
+                        ? `Booked: ${blockedLabel}`
+                        : "Booked out for both interviewers"
+                      : undefined
+                  }
                   aria-label={`${day} ${time}`}
                 >
-                  {isBlocked ? "Booked" : null}
+                  {isBlocked && blockedLabel ? (
+                    <span className="truncate block text-[10px] leading-tight px-0.5" title={blockedLabel}>
+                      {blockedLabel}
+                    </span>
+                  ) : null}
                 </button>
               );
             })}
