@@ -10,8 +10,11 @@ export function getWeekDates(): string[] {
   });
 }
 
+/** Fixed locale to avoid hydration mismatch between server and client */
+const DATE_LOCALE = "en-US";
+
 export function formatWeekDate(dateValue: string): string {
-  return new Date(`${dateValue}T00:00:00`).toLocaleDateString([], {
+  return new Date(`${dateValue}T12:00:00Z`).toLocaleDateString(DATE_LOCALE, {
     weekday: "short",
     month: "short",
     day: "numeric",

@@ -69,7 +69,7 @@ export default function SchedulePage() {
 
   return (
     <div className="min-h-screen px-4 py-8 md:px-8">
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-5">
+      <main className="mx-auto flex w-full flex-col gap-5">
         <div className="flex items-center justify-between">
           <Link href="/" className="text-sm font-medium text-stone-700 hover:text-stone-900">
             Back
@@ -79,8 +79,8 @@ export default function SchedulePage() {
           </p>
         </div>
 
-        <section className="grid grid-cols-[340px,minmax(0,1fr)] gap-5">
-          <aside className="panel p-5">
+        <section className="schedule-layout">
+          <aside className="schedule-layout-sidebar panel p-5">
             <h1 className="text-xl font-semibold text-stone-900">Schedule a Candidate</h1>
             <p className="mt-2 text-sm text-stone-600">
               Choose interviewer A and B, then select a shared time slot.
@@ -153,7 +153,7 @@ export default function SchedulePage() {
             ) : null}
           </aside>
 
-          <section className="panel p-4">
+          <section className="schedule-layout-grid panel p-4">
             {interviewerAId === interviewerBId ? (
               <div className="rounded-xl border border-stone-200 bg-white p-4 text-sm text-red-700">
                 Interviewer A and B must be different to view overlap.

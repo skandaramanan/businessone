@@ -69,3 +69,21 @@ body {
 .button-secondary:hover {
   border-color: #9c8e77;
 }
+
+.schedule-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.schedule-layout-sidebar {
+  flex: 0 0 30%;
+  min-width: 220px;
+  max-width: 360px;
+}
+
+.schedule-layout-grid {
+  flex: 1;
+  min-width: 0;
+}

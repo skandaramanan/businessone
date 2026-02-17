@@ -16,7 +16,7 @@ export default function AvailabilityPage() {
 
   return (
     <div className="min-h-screen px-4 py-8 md:px-8">
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-5">
+      <main className="mx-auto flex w-full flex-col gap-5">
         <div className="flex items-center justify-between">
           <Link href="/" className="text-sm font-medium text-stone-700 hover:text-stone-900">
             Back
@@ -26,8 +26,8 @@ export default function AvailabilityPage() {
           </p>
         </div>
 
-        <section className="grid gap-5 lg:grid-cols-[320px,1fr]">
-          <aside className="panel p-5">
+        <section className="schedule-layout">
+          <aside className="schedule-layout-sidebar panel p-5">
             <h1 className="text-xl font-semibold text-stone-900">Add My Availabilities</h1>
             <p className="mt-2 text-sm text-stone-600">
               Drag across the grid to quickly mark available time blocks.
@@ -60,7 +60,7 @@ export default function AvailabilityPage() {
             </button>
           </aside>
 
-          <section className="panel p-4">
+          <section className="schedule-layout-grid panel p-4">
             <WeekAvailabilityGrid
               selectedSlots={selectedSlots}
               onChangeSlots={(slots) => setInterviewerSlots(state.currentInterviewerId, slots)}

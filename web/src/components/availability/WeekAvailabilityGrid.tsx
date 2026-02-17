@@ -67,8 +67,8 @@ export function WeekAvailabilityGrid({
   return (
     <div className="overflow-auto rounded-2xl border border-stone-200 bg-white">
       <div
-        className="grid min-w-[860px]"
-        style={{ gridTemplateColumns: `110px repeat(${days.length}, minmax(95px, 1fr))` }}
+        className="grid min-w-[700px]"
+        style={{ gridTemplateColumns: `72px repeat(${days.length}, minmax(80px, 1fr))` }}
       >
         <div className="sticky left-0 top-0 z-20 border-b border-r border-stone-200 bg-stone-100 p-2 text-xs font-semibold uppercase tracking-wide text-stone-600">
           Time
