@@ -109,7 +109,7 @@ export function WeekAvailabilityGrid({
                     ? isBlocked
                       ? "bg-stone-400 text-stone-800"
                       : isActive
-                        ? "bg-emerald-500 text-white"
+                        ? "bg-[#FA951B] text-white"
                         : isSelectable
                           ? "bg-stone-900 text-white hover:bg-stone-800"
                           : "bg-stone-100 text-stone-400"

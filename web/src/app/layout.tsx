@@ -1,21 +1,28 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { League_Spartan, Montserrat, Roboto_Condensed } from "next/font/google";
 import "./globals.css";
 import { SchedulerProvider } from "@/lib/store/schedulerStore";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const leagueSpartan = League_Spartan({
+  variable: "--font-headline",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const montserrat = Montserrat({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const robotoCondensed = Roboto_Condensed({
+  variable: "--font-subheadline",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "BusinessOne Interview Scheduler",
-  description: "Internal interview booking platform for BusinessOne.",
+  title: "BusinessOne Internal Tools",
+  description: "Internal tools for BusinessOne Consulting.",
 };
 
 export default function RootLayout({
@@ -26,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${leagueSpartan.variable} ${montserrat.variable} ${robotoCondensed.variable} antialiased`}
       >
         <SchedulerProvider>{children}</SchedulerProvider>
       </body>

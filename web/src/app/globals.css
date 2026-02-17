@@ -1,73 +1,90 @@
 @import "tailwindcss";
 
+/* BusinessOne Style Guide 2023 */
 :root {
-  --background: #f4efe6;
-  --foreground: #1b1a18;
+  --b1-orange: #FA951B;
+  --b1-orange-light: #FFBD59;
+  --b1-yellow: #FAD131;
+  --b1-grey: #353535;
+  --b1-white: #FFFFFF;
+  --background: #FAFAF8;
+  --foreground: #353535;
+  --border: #e0dcd5;
+  --card-bg: #FFFFFF;
+  --card-border: #e0dcd5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-body);
+  --font-mono: system-ui, monospace;
 }
+
+/* B1 typography */
+.font-headline { font-family: var(--font-headline), system-ui, sans-serif; }
+.font-body { font-family: var(--font-body), system-ui, sans-serif; }
+.font-subheadline { font-family: var(--font-subheadline), system-ui, sans-serif; }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
 .panel {
-  border: 1px solid #dfd7ca;
-  background: #fffdf9;
-  border-radius: 1.1rem;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .input {
   width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid #d8cfbf;
-  background: #fffdfa;
-  padding: 0.62rem 0.75rem;
-  font-size: 0.95rem;
-  color: #1f1c17;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  color: var(--foreground);
   outline: none;
-  transition: border-color 120ms ease;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
 .input:focus {
-  border-color: #9c8e77;
+  border-color: var(--b1-orange);
+  box-shadow: 0 0 0 3px rgba(250, 149, 27, 0.2);
 }
 
 .button-primary {
-  border-radius: 0.75rem;
-  border: 1px solid #1f1c17;
-  background: #1f1c17;
-  color: #faf7f2;
-  font-size: 0.9rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: var(--b1-orange);
+  color: white;
+  font-size: 0.9375rem;
   font-weight: 600;
-  padding: 0.55rem 0.9rem;
-  transition: opacity 120ms ease;
+  padding: 0.5rem 1rem;
+  transition: background 150ms ease;
 }
 
 .button-primary:hover {
-  opacity: 0.9;
+  background: #e58515;
 }
 
 .button-secondary {
-  border-radius: 0.75rem;
-  border: 1px solid #d8cfbf;
-  background: #fffdfa;
-  color: #1f1c17;
-  font-size: 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--foreground);
+  font-size: 0.9375rem;
   font-weight: 600;
-  padding: 0.55rem 0.9rem;
-  transition: border-color 120ms ease;
+  padding: 0.5rem 1rem;
+  transition: border-color 150ms ease, background 150ms ease;
 }
 
 .button-secondary:hover {
-  border-color: #9c8e77;
+  border-color: var(--b1-orange);
+  background: rgba(250, 149, 27, 0.08);
 }
 
 .schedule-layout {

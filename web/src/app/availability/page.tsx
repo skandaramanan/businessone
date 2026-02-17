@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { AppHeader } from "@/components/AppHeader";
 import { WeekAvailabilityGrid } from "@/components/availability/WeekAvailabilityGrid";
 import { formatWeekDate, getWeekDates } from "@/lib/availability/weekConfig";
 import { getInterviewerName } from "@/lib/scheduler";
@@ -15,8 +15,9 @@ export default function AvailabilityPage() {
 
   if (state.isLoading) {
     return (
-      <div className="min-h-screen px-4 py-8 md:px-8">
-        <main className="mx-auto flex w-full flex-col gap-5">
+      <div className="min-h-screen bg-[var(--background)]">
+        <AppHeader />
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <p className="text-sm text-stone-600">Loading...</p>
         </main>
       </div>
@@ -25,10 +26,11 @@ export default function AvailabilityPage() {
 
   if (state.error && state.interviewers.length === 0) {
     return (
-      <div className="min-h-screen px-4 py-8 md:px-8">
-        <main className="mx-auto flex w-full flex-col gap-5">
+      <div className="min-h-screen bg-[var(--background)]">
+        <AppHeader />
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <p className="text-sm text-red-600">{state.error}</p>
-          <button type="button" className="button-secondary" onClick={clearError}>
+          <button type="button" className="button-secondary mt-4" onClick={clearError}>
             Dismiss
           </button>
         </main>
@@ -37,17 +39,16 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 md:px-8">
-      <main className="mx-auto flex w-full flex-col gap-5">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="text-sm font-medium text-stone-700 hover:text-stone-900">
-              Back
-            </Link>
-            <p className="text-sm text-stone-600">
-              Window: {formatWeekDate(weekDates[0])} - {formatWeekDate(weekDates[weekDates.length - 1])}
-            </p>
-          </div>
+    <div className="min-h-screen bg-[var(--background)]">
+      <AppHeader
+        rightContent={
+          <p className="text-right font-body text-sm text-[#353535]/70">
+            {formatWeekDate(weekDates[0])} – {formatWeekDate(weekDates[weekDates.length - 1])}
+          </p>
+        }
+      />
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <div className="flex flex-col gap-4">
           {state.error ? (
             <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
               <p className="text-sm text-red-600">{state.error}</p>
@@ -62,8 +63,8 @@ export default function AvailabilityPage() {
           ) : null}
         </div>
 
-        <section className="schedule-layout">
-          <aside className="schedule-layout-sidebar panel p-5">
+        <section className="schedule-layout mt-2">
+          <aside className="schedule-layout-sidebar panel p-6">
             <h1 className="text-xl font-semibold text-stone-900">Add My Availabilities</h1>
             <p className="mt-2 text-sm text-stone-600">
               Drag across the grid to mark available time blocks, then confirm to save.
@@ -89,7 +90,7 @@ export default function AvailabilityPage() {
 
             <button
               type="button"
-              className="mt-4 w-full rounded-xl bg-emerald-600 px-4 py-3 font-medium text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 w-full rounded-xl bg-[#FA951B] px-4 py-3 font-medium text-white transition hover:bg-[#e58515] disabled:cursor-not-allowed disabled:opacity-60"
               onClick={() => saveAvailability(state.currentInterviewerId)}
               disabled={state.availabilitySaveStatus === "saving"}
             >

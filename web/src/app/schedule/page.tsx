@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { AppHeader } from "@/components/AppHeader";
 import { WeekAvailabilityGrid } from "@/components/availability/WeekAvailabilityGrid";
 import { formatSlotKey } from "@/lib/availability/slots";
 import { formatWeekDate, getWeekDates } from "@/lib/availability/weekConfig";
@@ -88,8 +88,9 @@ export default function SchedulePage() {
 
   if (state.isLoading) {
     return (
-      <div className="min-h-screen px-4 py-8 md:px-8">
-        <main className="mx-auto flex w-full flex-col gap-5">
+      <div className="min-h-screen bg-[var(--background)]">
+        <AppHeader />
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <p className="text-sm text-stone-600">Loading...</p>
         </main>
       </div>
@@ -98,8 +99,9 @@ export default function SchedulePage() {
 
   if (state.error) {
     return (
-      <div className="min-h-screen px-4 py-8 md:px-8">
-        <main className="mx-auto flex w-full flex-col gap-5">
+      <div className="min-h-screen bg-[var(--background)]">
+        <AppHeader />
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
           <p className="text-sm text-red-600">{state.error}</p>
         </main>
       </div>
@@ -107,19 +109,17 @@ export default function SchedulePage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 md:px-8">
-      <main className="mx-auto flex w-full flex-col gap-5">
-        <div className="flex items-center justify-between">
-          <Link href="/" className="text-sm font-medium text-stone-700 hover:text-stone-900">
-            Back
-          </Link>
-          <p className="text-sm text-stone-600">
-            Window: {formatWeekDate(weekDates[0])} - {formatWeekDate(weekDates[weekDates.length - 1])}
+    <div className="min-h-screen bg-[var(--background)]">
+      <AppHeader
+        rightContent={
+          <p className="text-right font-body text-sm text-[#353535]/70">
+            {formatWeekDate(weekDates[0])} – {formatWeekDate(weekDates[weekDates.length - 1])}
           </p>
-        </div>
-
+        }
+      />
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <section className="schedule-layout">
-          <aside className="schedule-layout-sidebar panel p-5">
+          <aside className="schedule-layout-sidebar panel p-6">
             <h1 className="text-xl font-semibold text-stone-900">Schedule a Candidate</h1>
             <p className="mt-2 text-sm text-stone-600">
               Choose interviewers, add candidate info, then select a slot from the grid.
@@ -212,7 +212,7 @@ export default function SchedulePage() {
                 {sharedSlots.length - blockedSlots.length} slots available
               </p>
               <p className="mt-1 text-stone-600">
-                Black = available, Green = your selection, Gray = booked
+                Black = available, Orange = your selection, Gray = booked
               </p>
               <p className="mt-1">
                 Selected: {selectedSlotKey ? formatSlotKey(selectedSlotKey) : "None"}
@@ -247,7 +247,7 @@ export default function SchedulePage() {
           </section>
         </section>
 
-        <section className="panel p-5">
+        <section className="panel mt-6 p-6">
           <h2 className="text-lg font-semibold text-stone-900">Booked interviews</h2>
           <ul className="mt-3 space-y-2">
             {state.bookings.length === 0 ? (
